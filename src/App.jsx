@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { Navbar } from "./components/Navbar";
 import { LibrarySidebar } from "./components/LibrarySidebar";
 import { QueueSidebar } from "./components/QueueSidebar";
@@ -19,10 +19,19 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(100);
+
+  const next = () => {
+    const index = initialTracks.findIndex((t) => t.id === current.id);
+    play(initialTracks[(index + 1) % initialTracks.length]);
+  };
+  const nextRef = useRef(next);
+  nextRef.current = next;
 
   const api = useMemo(() => createMusicApi(initialTracks), []);
   const playerService = useMemo(
-    () => createPlayerService(setProgress, setDuration),
+    () =>
+      createPlayerService(setProgress, setDuration, () => nextRef.current()),
     [],
   );
 
@@ -60,18 +69,11 @@ export default function App() {
     setRefresh((v) => v + 1);
   };
 
-  const next = () => {
-    const index = initialTracks.findIndex((t) => t.id === current.id);
-    play(initialTracks[(index + 1) % initialTracks.length]);
-    playerService.next();
-  };
-
   const previous = () => {
     const index = initialTracks.findIndex((t) => t.id === current.id);
     play(
       initialTracks[(index - 1 + initialTracks.length) % initialTracks.length],
     );
-    playerService.previous();
   };
 
   const content = query ? (
@@ -136,6 +138,7 @@ export default function App() {
         />
       </div>
       <MusicPlayer
+        volume={volume}
         track={current}
         isPlaying={playing}
         currentTime={progress}
@@ -148,6 +151,10 @@ export default function App() {
             setPlaying(true);
             playerService.play(current);
           }
+        }}
+        onVolumeChange={(value) => {
+          setVolume(value);
+          playerService.setVolume(value);
         }}
         onPrev={previous}
         onNext={next}

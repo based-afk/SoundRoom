@@ -12,21 +12,34 @@ const colors = [
   "#b27e64",
 ];
 const raw = [
-  ["Midnight City", "M83", "Hurry Up, We’re Dreaming", 244],
-  ["Sunset Lover", "Petit Biscuit", "Presence", 237],
-  ["Sweet Disposition", "The Temper Trap", "Conditions", 235],
-  ["The Less I Know The Better", "Tame Impala", "Currents", 217],
-  ["Space Song", "Beach House", "Depression Cherry", 320],
-  ["Mystery of Love", "Sufjan Stevens", "Call Me by Your Name", 259],
-  ["After Dark", "Mr.Kitty", "Time", 260],
-  ["Electric Feel", "MGMT", "Oracular Spectacular", 229],
-  ["505", "Arctic Monkeys", "Favourite Worst Nightmare", 253],
-  ["A Real Hero", "College", "Secret Diary", 247],
-  ["Dreams Tonite", "Alvvays", "Antisocialites", 215],
-  ["Holocene", "Bon Iver", "Bon Iver", 336],
+  [
+    "Midnight City",
+    "M83",
+    "Hurry Up, We’re Dreaming",
+    "/audio/congratulations.mp3",
+  ],
+  ["Sunset Lover", "Petit Biscuit", "Presence", "/audio/HeatWaves.mp3"],
+  [
+    "Sweet Disposition",
+    "The Temper Trap",
+    "Conditions",
+    "/audio/taki_taki.mp3",
+  ],
+  [
+    "The Less I Know The Better",
+    "Tame Impala",
+    "Currents",
+    "/audio/theLessIKnowTheBetter.mp3",
+  ],
+  [
+    "Mystery of Love",
+    "Sufjan Stevens",
+    "Call Me by Your Name",
+    "/audio/darkRed.mp3",
+  ],
 ];
 
-export const tracks = raw.map(([title, artist, album, duration], index) => ({
+export const tracks = raw.map(([title, artist, album, audioUrl], index) => ({
   id: String(index + 1),
   title,
   artist: { id: `artist-${index}`, name: artist },
@@ -35,8 +48,7 @@ export const tracks = raw.map(([title, artist, album, duration], index) => ({
     title: album,
     artwork: `https://picsum.photos/seed/soundroom-${index}/160/160`,
   },
-  audioUrl: index === 0 ? "/audio/congratulations.mp3" : null,
-  duration,
+  audioUrl,
   liked: [0, 2, 4, 7, 10].includes(index),
   downloaded: [0, 3, 6, 9].includes(index),
   accent: colors[index % colors.length],

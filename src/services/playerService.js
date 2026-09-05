@@ -1,11 +1,21 @@
 // Mock Player Service implementation (JavaScript)
-export const createPlayerService = (onTimeUpdate, onDurationUpdate) => {
+export const createPlayerService = (
+  onTimeUpdate,
+  onDurationUpdate,
+  onEnded,
+) => {
   const audio = new Audio();
+  audio.addEventListener("error", () => {
+    console.error("Audio failed to load");
+  });
   audio.addEventListener("timeupdate", () => {
     onTimeUpdate(audio.currentTime);
   });
   audio.addEventListener("loadedmetadata", () => {
     onDurationUpdate(audio.duration);
+  });
+  audio.addEventListener("ended", () => {
+    onEnded();
   });
   let currentTrack = null;
   return {
@@ -15,7 +25,12 @@ export const createPlayerService = (onTimeUpdate, onDurationUpdate) => {
         audio.src = track.audioUrl;
       }
 
-      audio.play();
+      audio.play().catch((error) => {
+        console.error("Unable to play audio", error);
+      });
+    },
+    setVolume: (volume) => {
+      audio.volume = volume / 100;
     },
     pause: () => {
       audio.pause();
@@ -23,8 +38,6 @@ export const createPlayerService = (onTimeUpdate, onDurationUpdate) => {
     resume: () => {
       audio.play();
     },
-    next: () => console.info("Mock next"),
-    previous: () => console.info("Mock previous"),
     seek: (seconds) => {
       audio.currentTime = seconds;
     },

@@ -44,7 +44,6 @@ export function MusicPlayer({
     const newVol = Number(e.target.value);
     onVolumeChange(newVol);
   };
-  console.log("duration:", duration, "currentTime:", currentTime);
 
   return (
     <div className="player">
