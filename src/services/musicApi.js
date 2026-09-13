@@ -4,7 +4,7 @@ export const createMusicApi = (tracks) => ({
     tracks.filter((track) =>
       `${track.title} ${track.artist.name} ${track.album.title}`
         .toLowerCase()
-        .includes(query.toLowerCase())
+        .includes(query.toLowerCase()),
     ),
   getLikedTracks: () => tracks.filter((track) => track.liked),
   getDownloadedTracks: () => tracks.filter((track) => track.downloaded),
@@ -17,3 +17,9 @@ export const createMusicApi = (tracks) => ({
     if (track) track.liked = false;
   },
 });
+export const getTracks = async () => {
+  const response = await fetch("http://localhost:3000/tracks");
+  const data = await response.json();
+
+  return data.result;
+};

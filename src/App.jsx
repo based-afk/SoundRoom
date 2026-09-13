@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { LibrarySidebar } from "./components/LibrarySidebar";
 import { QueueSidebar } from "./components/QueueSidebar";
@@ -7,19 +7,40 @@ import { Home } from "./pages/Home";
 import { Library } from "./pages/Library";
 import { Downloads } from "./pages/Downloads";
 import { TrackList } from "./components/TrackList";
-import { createMusicApi } from "./services/musicApi";
 import { createPlayerService } from "./services/playerService";
-import { playlists, tracks as initialTracks } from "./data";
+import { playlists } from "./data";
+import { getTracks, createMusicApi } from "./services/musicApi";
 
 export default function App() {
+  const [initialTracks, setInitialTracks] = useState([]);
   const [, setRefresh] = useState(0);
   const [page, setPage] = useState("home");
   const [query, setQuery] = useState("");
-  const [current, setCurrent] = useState(initialTracks[0]);
+  const [current, setCurrent] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(100);
+
+  useEffect(() => {
+    getTracks().then((data) => {
+      const formattedTracks = data.map((track) => ({
+        id: track.id,
+        title: track.title,
+        artist: {
+          name: track.artist,
+        },
+        album: {
+          title: track.album,
+        },
+        audioUrl: track.audio_url,
+        artworkUrl: track.artwork_url,
+      }));
+
+      setInitialTracks(formattedTracks);
+      setCurrent(formattedTracks[0]);
+    });
+  }, []);
 
   const next = () => {
     const index = initialTracks.findIndex((t) => t.id === current.id);
@@ -28,7 +49,7 @@ export default function App() {
   const nextRef = useRef(next);
   nextRef.current = next;
 
-  const api = useMemo(() => createMusicApi(initialTracks), []);
+  const api = useMemo(() => createMusicApi(initialTracks), [initialTracks]);
   const playerService = useMemo(
     () =>
       createPlayerService(setProgress, setDuration, () => nextRef.current()),
@@ -44,7 +65,10 @@ export default function App() {
       return playlists[idx]?.tracks ?? [];
     }
     return initialTracks;
-  }, [query, page]);
+  }, [query, page, api, initialTracks]);
+  if (!current) {
+    return <div>Loading...</div>;
+  }
 
   const upcoming = visibleTracks.filter((t) => t.id !== current.id);
 
